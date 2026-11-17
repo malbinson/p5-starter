@@ -1,13 +1,19 @@
 //preview: python -m http.server
+let img;
 
-let myBall;
+async function imgSetup() {
+  // Call handleImage() once the image loads.
+  img = await loadImage('/assets/bricks.png');
 
-function setup() {
-  createCanvas(windowWidth-100, windowHeight-100);
-  background(30);
-  myBall = new Ball(width / 2, height / 2, 40);
 }
 
+
+function setup() {
+  createCanvas(windowWidth-20, windowHeight-20);
+  background(30);
+  myBall = new Ball(width / 2, height / 2, 40);
+  imgSetup();
+}
 function draw() {
   background(30);
   myBall.update();   // Calculate physics
@@ -33,33 +39,25 @@ class Ball {
     if (keyIsDown(RIGHT_ARROW)) this.applyForce(createVector(forceMagnitude, 0));
     if (keyIsDown(UP_ARROW))    this.applyForce(createVector(0, -forceMagnitude));
     if (keyIsDown(DOWN_ARROW))  this.applyForce(createVector(0, forceMagnitude));
+    if (keyIsDown(32)) { // Space bar to reset position
+      console.log("boof!")
+    }
   }
+  
 
   // The "Force" pattern: Force adds to Acceleration
   applyForce(force) {
-    this.acc.add(force);
+    this.vel.set(force);
   }
 
   update() {
-    // 1. Acceleration changes Velocity
-    this.vel.add(this.acc);
-    
-    // 2. Limit the speed so it doesn't go infinite
-    this.vel.limit(this.topSpeed);
-    
-    // 3. Velocity changes Position
     this.pos.add(this.vel);
-    
-    // 4. Apply friction (velocity decay)
-    this.vel.mult(this.friction);
-    
-    // 5. Reset acceleration for the next frame
-    this.acc.mult(0);
+    this.vel.set(0,0);
   }
 
   display() {
     fill(255, 150, 0);
     noStroke();
-    ellipse(this.pos.x, this.pos.y, this.r);
+    image(img, this.pos.x, this.pos.y, this.r, this.r);
   }
 }
